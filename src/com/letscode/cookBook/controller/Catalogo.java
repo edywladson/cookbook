@@ -46,6 +46,12 @@ public class Catalogo {
         return null;
     }
 
+    public Receita getFirst() {
+        if (receitas.isEmpty()) return null;
+
+        return getReceita(0);
+    }
+
     public Receita getRandom() {
         if (receitas.isEmpty()) return null;
 

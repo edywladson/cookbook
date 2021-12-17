@@ -7,8 +7,6 @@ import com.letscode.cookBook.enums.Categoria;
 import com.letscode.cookBook.enums.TipoMedida;
 import com.letscode.cookBook.enums.TipoRendimento;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class NovaReceitaView {
