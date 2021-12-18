@@ -39,6 +39,10 @@ public class Catalogo {
         return null;
     }
 
+    public List<Receita> getAllReceitas() {
+        return receitas;
+    }
+
     public Receita getReceita(int index) {
         if (index >= 0 && index < receitas.size()) {
             return receitas.get(index);

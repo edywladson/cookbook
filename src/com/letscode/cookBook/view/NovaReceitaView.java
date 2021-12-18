@@ -19,54 +19,20 @@ public class NovaReceitaView {
     }
 
     public Receita montarReceita() {
-        String nome = askNome();
-        Categoria categoria = askCategoria();
+        scanner = new Scanner(System.in);
 
-        receita = new Receita(nome, categoria);
+        receita = new Receita(askNome(), askCategoria());
         receita.setTempoPreparo(askTempoPreparo());
-        receita.setRendimento(montarRendimento());
-
-        System.out.println("Quantos ingredientes sua receita possui?");
-        int quantidadeDeIngredientes = scanner.nextInt();
-        for (int i = 0; i < quantidadeDeIngredientes; i++) {
-            receita.setIngredientes(new Ingrediente[]{montarIngrediente(i+1)});
-        }
-
-        System.out.println("Quantos passos possui o modo de preparo da sua receita?");
-        int quantidadePassosModoPreparo = scanner.nextInt();
-        String[] modoPreparo = new String[quantidadePassosModoPreparo];
-
-        for (int i = 0; i < quantidadePassosModoPreparo; i++) {
-           modoPreparo[i] = askModoPreparo(i+1);
-        }
-
-        receita.setModoPreparo(modoPreparo);
+        receita.setRendimento(askRendimento());
+        askIngredientes();
+        askModoDePreparo();
 
         return receita;
     }
 
-    private Rendimento montarRendimento () {
-        int quantidade = askRendimento();
-        TipoRendimento tipo = askTipoRendimento();
-
-        return new Rendimento(quantidade, tipo);
-    }
-
-    private Ingrediente montarIngrediente (int index) {
-        String nome = askIngrediente(index);
-        double quantidade = askQuantidadeIngrediente(index);
-        TipoMedida medida = askMedidaIngrediente(index);
-
-        return new Ingrediente(nome, quantidade, medida);
-    }
-
     private String askNome() {
         System.out.println("Qual o nome da receita?");
-        nome = scanner.nextLine();
-        if (nome.isBlank()) {
-            System.out.println("Nome inválido!");
-            askNome();
-        }
+        nome = isBlank("O nome da receita é inválido! Ele não pode estar em branco.");
 
         return nome;
     }
@@ -76,99 +42,148 @@ public class NovaReceitaView {
         for (Categoria cat : Categoria.values()) {
             System.out.printf("%d - %s %n", cat.ordinal(), cat.name());
         }
-        int categoria = scanner.nextInt();
-        if (categoria < 0 || categoria >= Categoria.values().length) {
-            System.out.println("Categoria inválida!");
-            askCategoria();
-        }
+
+        int categoria = isInteiro("Categoria inválida! Escolha um das opções acima.",
+                "Categoria inválida! Escolha um das opções acima.");
 
         return Categoria.values()[categoria];
     }
 
     private int askTempoPreparo() {
-        System.out.println("Qual o tempo de preparo da receita (insira em segundos)?");
-        int tempoPreparo = scanner.nextInt();
-        if (tempoPreparo < 0) {
-            System.out.println("Tempo de preparo inválido!");
-            askTempoPreparo();
-        }
+        System.out.println("Qual o tempo de preparo da receita em segundos?");
+
+        int tempoPreparo = isInteiro("Tempo de preparo inválido! O tempo de preparo deve ser em segundos.",
+                "Tempo de preparo inválido!");
 
         return tempoPreparo;
     }
 
-    private int askRendimento() {
+    private Rendimento askRendimento() {
+        this.scanner = new Scanner(System.in);
+
+        int rendimento;
+        int tipo;
+
         System.out.println("Qual o rendimento da receita?");
-        int rendimento = scanner.nextInt();
-        if (rendimento < 0) {
-            System.out.println("Rendimento inválido!");
-            askRendimento();
-        }
 
-        return rendimento;
-    }
+        rendimento = isInteiro("Redimento inválido! O redimento deve ser numérico.",
+                "Rendimento inválido!");
 
-    private TipoRendimento askTipoRendimento() {
         System.out.println("Qual o tipo do rendimento da receita?");
         for (TipoRendimento tr : TipoRendimento.values()) {
             System.out.printf("%d - %s %n", tr.ordinal(), tr.name());
         }
-        int tipoRendimento = scanner.nextInt();
-        if (tipoRendimento < 0 || tipoRendimento >= TipoRendimento.values().length) {
-            System.out.println("Tipo de rendimento inválido!");
-            askTipoRendimento();
-        }
 
-        return TipoRendimento.values()[tipoRendimento];
+        tipo = isInteiro("Tipo de rendimento inválido! Escolha um das opções acima.",
+                "Tipo de rendimento inválido! Escolha um das opções acima.");
+
+        return new Rendimento(rendimento, TipoRendimento.values()[tipo]);
     }
 
-    private String askIngrediente(int index) {
+    private void askIngredientes() {
         this.scanner = new Scanner(System.in);
 
-        System.out.println("Qual o " + index + "º ingrediente da receita?");
-        String ingrediente = scanner.nextLine();
-        if (ingrediente.isBlank()) {
-            System.out.println("Ingrediente inválido!");
-            askIngrediente(index);
-        }
+        System.out.println("\n##### INSIRA OS INGREDIENTES DE SUA RECEITA #####");
 
-        return ingrediente;
+        int count = 1;
+        String ingrediente;
+        double quantidade;
+        int medida;
+        String verificacao;
+
+        do {
+            System.out.println("Qual o nome do " + count + "º ingrediente da receita?");
+            ingrediente = isBlank("O nome do ingrediente está inválido! Ele não pode estar em branco.");
+
+            System.out.println("Qual a quantidade do " + count + "º ingrediente da receita?");
+            quantidade = isDouble("Quantidade do ingrediente inválida! A quantidade deve ser numérica.",
+                    "Quantidade do ingrediente inválida!");
+
+            System.out.println("Qual o tipo da medida do " + count + "º ingrediente da receita?");
+            for (TipoMedida tmi : TipoMedida.values()) {
+                System.out.printf("%d - %s %n", tmi.ordinal(), tmi.name());
+            }
+
+            medida = isInteiro("Tipo de medida inválido! Escolha um das opções acima.",
+                    "Tipo de medida inválido! Escolha um das opções acima.");
+
+            receita.setIngredientes(new Ingrediente[]{new Ingrediente(ingrediente, quantidade, TipoMedida.values()[medida])});
+            count++;
+
+            do {
+                System.out.print("Deseja inserir um novo ingrediente? (S/N) ");
+                verificacao = scanner.nextLine().toUpperCase();
+            } while (!verificacao.equals("S") && !verificacao.equals("N"));
+        } while (!verificacao.equals("N"));
     }
 
-    private double askQuantidadeIngrediente(int index) {
-        System.out.println("Qual a quantidade do " + index + "º ingrediente da receita?");
-        double quantidade = scanner.nextDouble();
-        if (quantidade <= 0) {
-            System.out.println("Quantidade do ingrediente inválida!");
-            askQuantidadeIngrediente(index);
-        }
-
-        return quantidade;
-    }
-
-    private TipoMedida askMedidaIngrediente(int index) {
-        System.out.println("Qual o tipo da medida do " + index + "º ingrediente da receita?");
-        for (TipoMedida tmi : TipoMedida.values()) {
-            System.out.printf("%d - %s %n", tmi.ordinal(), tmi.name());
-        }
-        int tipoMedida = scanner.nextInt();
-        if (tipoMedida < 0 || tipoMedida >= TipoMedida.values().length) {
-            System.out.println("Tipo de medida inválido!");
-            askMedidaIngrediente(index);
-        }
-
-        return TipoMedida.values()[tipoMedida];
-    }
-
-    private String askModoPreparo(int index) {
+    private void askModoDePreparo() {
         this.scanner = new Scanner(System.in);
 
-        System.out.println("Qual o " + index + "º passo do modo de preparo da receita?");
-        String modoPreparo = scanner.nextLine();
-        if (modoPreparo.isBlank()) {
-            System.out.println("Modo de preparo inválido!");
-            askModoPreparo(index);
-        }
+        System.out.println("\n##### INSIRA OS PASSOS DO MODE DE PREPARO DE SUA RECEITA #####");
 
-        return modoPreparo;
+        int count = 1;
+        String modoDePreparo;
+        String verificacao;
+
+        do {
+            System.out.println("Qual o " + count + "º passo do modo de preparo da receita?");
+            modoDePreparo = isBlank("O modo de preparo está inválido! Ele não pode estar em branco.");
+
+            receita.setModoPreparo(new String[]{modoDePreparo});
+            count++;
+
+            do {
+                System.out.print("Deseja inserir mais um passo ao modo de preparo? (S/N) ");
+                verificacao = scanner.nextLine().toUpperCase();
+            } while (!verificacao.equals("S") && !verificacao.equals("N"));
+        } while (!verificacao.equals("N"));
+    }
+
+    private int isInteiro(String mensagemUm, String mensagemDois) {
+        int valor;
+        do {
+            while (!scanner.hasNextInt()) {
+                System.out.println(mensagemUm);
+                scanner.next();
+            }
+
+            valor = scanner.nextInt();
+            if (valor < 0) {
+                System.out.println(mensagemDois);
+            }
+        } while (valor < 0);
+
+        return valor;
+    }
+
+    private double isDouble(String mensagemUm, String mensagemDois) {
+        double valor;
+        do {
+            while (!scanner.hasNextDouble()) {
+                System.out.println(mensagemUm);
+                scanner.next();
+            }
+
+            valor = scanner.nextDouble();
+            if (valor < 0) {
+                System.out.println(mensagemDois);
+            }
+        } while (valor < 0);
+
+        return valor;
+    }
+
+    private String isBlank(String mensagem) {
+        String nome = scanner.nextLine();
+
+        do {
+            if (nome.isBlank()) {
+                System.out.println(mensagem);
+                askNome();
+            }
+        } while (nome.isBlank());
+
+        return nome;
     }
 }
