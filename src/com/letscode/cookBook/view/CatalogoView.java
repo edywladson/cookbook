@@ -57,10 +57,6 @@ public class CatalogoView {
     private void search() {
         String pesquisa = new PesquisaReceitaNew().askNome();
         this.receita = controller.getReceita(pesquisa);
-        if (this.receita == null) {
-            System.out.println("Receita não encontrada!");
-            this.receita = controller.getFirst();
-        }
         show();
     }
 
